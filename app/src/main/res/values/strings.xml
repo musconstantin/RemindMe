@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Remind Me</string>
+    <string name="label_eventTitle">Event title: </string>
+    <string name="label_eventRemindMe">Remind me every: </string>
+    <string name="label_eventDescription">Event description:</string>
+    <string name="eventSaveButton">Save</string>
+    <string name="eventCancelButton">Cancel</string>
+    <string name="newEvent">+</string>
+    <string-array name="hours">
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>6</item>
+        <item>8</item>
+        <item>12</item>
+        <item>16</item>
+        <item>22</item>
+    </string-array>
+    <string-array name="minutes">
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+    </string-array>
+    <string-array name="days">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="frequency">
+        <item>days</item>
+        <item>hours</item>
+        <item>minutes</item>
+    </string-array>
+</resources>
