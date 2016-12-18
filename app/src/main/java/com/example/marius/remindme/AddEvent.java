@@ -3,10 +3,15 @@ package com.example.marius.remindme;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.util.Calendar;
 
 public class AddEvent extends AppCompatActivity {
 
@@ -50,6 +55,24 @@ public class AddEvent extends AppCompatActivity {
     }
 
     public void saveEvent(View view) {
+        EditText title = (EditText)findViewById(R.id.eventTitle);
+        EditText description = (EditText)findViewById(R.id.eventDescription);
+        Spinner frequencyType = (Spinner)findViewById(R.id.frequencySpinner);
+        Spinner frequency = (Spinner)findViewById(R.id.timeSpinner);
+        String currentTime = EventGenerics.dateFormat.format(Calendar.getInstance().getTime());
+
+        Log.d("freq spinner: ", "" + frequencyType.getSelectedItemPosition());
+        Log.d("freq spinner value: ", "" + frequencyType.getSelectedItem());
+
+        DBHelper dbHelper = new DBHelper(this);
+        dbHelper.insertEvent(title.getText().toString(),
+                description.getText().toString(),
+                frequency.getSelectedItem().toString(),
+                frequencyType.getSelectedItem().toString(),
+                EventGenerics.activeDefault,
+                currentTime,
+                EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), frequency.getSelectedItem().toString()));
+        Toast.makeText(this, "" + dbHelper.rowCount(), Toast.LENGTH_LONG);
         Intent eventList = new Intent(AddEvent.this, EventList.class);
         AddEvent.this.startActivity(eventList);
     }
