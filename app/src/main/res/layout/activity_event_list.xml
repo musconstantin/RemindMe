@@ -19,4 +19,23 @@
         android:background="@drawable/rounded_button"
         android:onClick="newEvent"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20sp"
+        android:id="@+id/emptyList"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:drawablePadding="5sp"
+        android:text="@string/empty_list"
+        android:textColor="@android:color/black"
+        android:visibility="gone"/>
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="20sp"
+        android:id="@+id/eventsList"
+        android:divider="@android:color/black"
+        android:dividerHeight="2sp">
+    </ListView>
 </LinearLayout>

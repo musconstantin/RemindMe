@@ -6,6 +6,10 @@
     <string name="eventSaveButton">Save</string>
     <string name="eventCancelButton">Cancel</string>
     <string name="newEvent">+</string>
+    <string name="empty_list">No results available.</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="toggle_on">On</string>
+    <string name="toggle_off">Off</string>
     <string-array name="hours">
         <item>1</item>
         <item>2</item>

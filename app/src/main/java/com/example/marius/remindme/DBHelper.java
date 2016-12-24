@@ -12,7 +12,21 @@ import java.util.ArrayList;
 /**
  * Created by marius on 18.12.2016.
  */
-
+/*
+|---------------------------------EVENTS TABLE STRUCTURE-----------------------------------|                                                     |
+|------------------------------------------------------------------------------------------|
+|  COLUMN NAME   |  COLUMN TYPE   |       COLUMN COMMENTS                                  |
+|------------------------------------------------------------------------------------------|
+|  ID            |     INTEGER    |    Unique identifier(autoincremented)                  |
+|  TITLE         |     TEXT       |    Title of the event                                  |
+|  DESCRIPTION   |     TEXT       |    Description of the event                            |
+|  FREQUENCY     |     TEXT       |    How often the app should send notifications         |
+|  FREQTYPE      |     TEXT       |    Frequency type (minutes/hours/days)                 |
+|  ACTIVE        |     TEXT       |    1 - if the event is active, 0 otherwise             |
+|  CRDATE        |     TEXT       |    The date that the event was created at              |
+|  NEXTALERT     |     TEXT       |    When the next notification should be sent           |
+|__________________________________________________________________________________________|
+ */
 public class DBHelper extends SQLiteOpenHelper{
     public static final String c_DATABASE_NAME = "RemindMe.db";
     public static final String c_EVENTS_TABLE_NAME = "events";
@@ -116,6 +130,13 @@ public class DBHelper extends SQLiteOpenHelper{
         return true;
     }
 
+    public boolean setActiveEvent(Integer id, String active){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(c_EVENTS_COLUMN_ACTIVE, active);
+        db.update(c_EVENTS_TABLE_NAME, contentValues, "id = ?", new String[] {Integer.toString(id)});
+        return true;
+    }
     public Integer deleteEvent(Integer id){
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(c_EVENTS_TABLE_NAME,
@@ -126,15 +147,16 @@ public class DBHelper extends SQLiteOpenHelper{
     public ArrayList<Event> getEventsForInterface(){
         ArrayList<Event> eventList = new ArrayList<Event>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Event temp = new Event();
 
         Cursor res = this.getActiveList();
         res.moveToFirst();
 
         while(!res.isAfterLast()){
+            Event temp = new Event();
             temp.setId(res.getInt(res.getColumnIndex(c_EVENTS_COLUMN_ID)));
             temp.setTitle(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_TITLE)));
             temp.setDescription(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_DESCRIPTION)));
+            temp.setActive(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_ACTIVE)));
             eventList.add(temp);
             res.moveToNext();
         }
