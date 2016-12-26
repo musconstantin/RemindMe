@@ -23,7 +23,7 @@ public class EventList extends AppCompatActivity {
     }
 
     public void newEvent(View view) {
-        Intent addEvent = new Intent(EventList.this, AddEvent.class);
+        Intent addEvent = new Intent(EventList.this, EventAdd.class);
         EventList.this.startActivity(addEvent);
     }
 }

@@ -1,12 +1,14 @@
 package com.example.marius.remindme;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -34,6 +36,7 @@ public class EventListAdapter extends ArrayAdapter<Event> {
         }
         final Event currentEvent = getItem(position);
         if(currentEvent != null){
+            LinearLayout eventClick = (LinearLayout) v.findViewById(R.id.rowEventClick);
             TextView eventTitle = (TextView) v.findViewById(R.id.rowEventTitle);
             TextView eventDescription = (TextView) v.findViewById(R.id.rowEventDescription);
             TextView eventId = (TextView) v.findViewById(R.id.rowEventId);
@@ -71,6 +74,16 @@ public class EventListAdapter extends ArrayAdapter<Event> {
                                 "You will not receive notifications anymore for this event.", Toast.LENGTH_SHORT).show();
                         db.setActiveEvent(currentEvent.getId(), "0");
                     }
+                }
+            });
+
+            eventClick.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    Intent eventAdd = new Intent(getContext(), EventAdd.class);
+                    eventAdd.putExtra("currentEventId", currentEvent.getId());
+                    getContext().startActivity(eventAdd);
                 }
             });
         }
