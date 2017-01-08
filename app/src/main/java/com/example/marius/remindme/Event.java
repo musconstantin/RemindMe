@@ -10,7 +10,6 @@ public class Event {
     private String description;
     private String frequency;
     private String frequencyType;
-    private String active;
     private String createDate;
     private String nextAlertTime;
 
@@ -60,14 +59,6 @@ public class Event {
 
     public void setFrequencyType(String frequencyType) {
         this.frequencyType = frequencyType;
-    }
-
-    public String getActive() {
-        return active;
-    }
-
-    public void setActive(String active) {
-        this.active = active;
     }
 
     public String getCreateDate() {

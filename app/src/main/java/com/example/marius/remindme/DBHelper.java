@@ -22,7 +22,6 @@ import java.util.ArrayList;
 |  DESCRIPTION   |     TEXT       |    Description of the event                            |
 |  FREQUENCY     |     TEXT       |    How often the app should send notifications         |
 |  FREQTYPE      |     TEXT       |    Frequency type (minutes/hours/days)                 |
-|  ACTIVE        |     TEXT       |    1 - if the event is active, 0 otherwise             |
 |  CRDATE        |     TEXT       |    The date that the event was created at              |
 |  NEXTALERT     |     TEXT       |    When the next notification should be sent           |
 |__________________________________________________________________________________________|
@@ -35,7 +34,6 @@ public class DBHelper extends SQLiteOpenHelper{
     public static final String c_EVENTS_COLUMN_DESCRIPTION = "description";
     public static final String c_EVENTS_COLUMN_FREQUENCY = "frequency";
     public static final String c_EVENTS_COLUMN_FREQUENCYTYPE = "freqtype"; //days/minutes/hours
-    public static final String c_EVENTS_COLUMN_ACTIVE = "active"; // 1 - yes; 0 - no
     public static final String c_EVENTS_COLUMN_CREATEDATE = "crdate";
     public static final String c_EVENTS_COLUMN_NEXTALERTTIME = "nextalert"; //the time when the next notification will be sent
 
@@ -53,7 +51,6 @@ public class DBHelper extends SQLiteOpenHelper{
         c_EVENTS_COLUMN_DESCRIPTION + " TEXT, " +
         c_EVENTS_COLUMN_FREQUENCY + " TEXT, " +
         c_EVENTS_COLUMN_FREQUENCYTYPE + " TEXT, " +
-        c_EVENTS_COLUMN_ACTIVE + " TEXT, " +
         c_EVENTS_COLUMN_CREATEDATE + " TEXT, " +
         c_EVENTS_COLUMN_NEXTALERTTIME + " TEXT)"
         );
@@ -71,11 +68,6 @@ public class DBHelper extends SQLiteOpenHelper{
         return results;
     }
 
-    private Cursor getActiveList(){
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor results = db.rawQuery("select * from " + c_EVENTS_TABLE_NAME + " where active ='1'", null);
-        return results;
-    }
 
     public Cursor getRow(int id){
         SQLiteDatabase db = this.getReadableDatabase();
@@ -89,11 +81,10 @@ public class DBHelper extends SQLiteOpenHelper{
         return rowCount;
     }
 
-    public boolean insertEvent(String title,
+    public long insertEvent(String title,
                                  String description,
                                  String frequency,
                                  String frequencyType,
-                                 String active,
                                  String createDate,
                                  String nextAlertTime){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -102,11 +93,9 @@ public class DBHelper extends SQLiteOpenHelper{
         contentValues.put(c_EVENTS_COLUMN_DESCRIPTION, description);
         contentValues.put(c_EVENTS_COLUMN_FREQUENCY, frequency);
         contentValues.put(c_EVENTS_COLUMN_FREQUENCYTYPE, frequencyType);
-        contentValues.put(c_EVENTS_COLUMN_ACTIVE, active);
         contentValues.put(c_EVENTS_COLUMN_CREATEDATE, createDate);
         contentValues.put(c_EVENTS_COLUMN_NEXTALERTTIME, nextAlertTime);
-        db.insert(c_EVENTS_TABLE_NAME, null, contentValues);
-        return true;
+        return db.insert(c_EVENTS_TABLE_NAME, null, contentValues);
     }
 
     public boolean updateEvent(Integer id,
@@ -114,7 +103,6 @@ public class DBHelper extends SQLiteOpenHelper{
                                String description,
                                String frequency,
                                String frequencyType,
-                               String active,
                                String createDate,
                                String nextAlertTime){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -123,20 +111,12 @@ public class DBHelper extends SQLiteOpenHelper{
         contentValues.put(c_EVENTS_COLUMN_DESCRIPTION, description);
         contentValues.put(c_EVENTS_COLUMN_FREQUENCY, frequency);
         contentValues.put(c_EVENTS_COLUMN_FREQUENCYTYPE, frequencyType);
-        contentValues.put(c_EVENTS_COLUMN_ACTIVE, active);
         contentValues.put(c_EVENTS_COLUMN_CREATEDATE, createDate);
         contentValues.put(c_EVENTS_COLUMN_NEXTALERTTIME, nextAlertTime);
         db.update(c_EVENTS_TABLE_NAME, contentValues, "id = ?", new String[] {Integer.toString(id)});
         return true;
     }
 
-    public boolean setActiveEvent(Integer id, String active){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(c_EVENTS_COLUMN_ACTIVE, active);
-        db.update(c_EVENTS_TABLE_NAME, contentValues, "id = ?", new String[] {Integer.toString(id)});
-        return true;
-    }
     public Integer deleteEvent(Integer id){
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(c_EVENTS_TABLE_NAME,
@@ -148,7 +128,7 @@ public class DBHelper extends SQLiteOpenHelper{
         ArrayList<Event> eventList = new ArrayList<Event>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res = this.getActiveList();
+        Cursor res = this.getList();
         res.moveToFirst();
 
         while(!res.isAfterLast()){
@@ -156,7 +136,8 @@ public class DBHelper extends SQLiteOpenHelper{
             temp.setId(res.getInt(res.getColumnIndex(c_EVENTS_COLUMN_ID)));
             temp.setTitle(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_TITLE)));
             temp.setDescription(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_DESCRIPTION)));
-            temp.setActive(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_ACTIVE)));
+            temp.setFrequencyType(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_FREQUENCYTYPE)));
+            temp.setFrequency(res.getString(res.getColumnIndex(c_EVENTS_COLUMN_FREQUENCY)));
             eventList.add(temp);
             res.moveToNext();
         }

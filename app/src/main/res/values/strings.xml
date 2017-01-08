@@ -11,34 +11,18 @@
     <string name="toggle_on">On</string>
     <string name="toggle_off">Off</string>
     <string name="event_delete">Delete</string>
-    <string-array name="hours">
-        <item>1</item>
-        <item>2</item>
-        <item>4</item>
-        <item>6</item>
-        <item>8</item>
-        <item>12</item>
-        <item>16</item>
-        <item>22</item>
-    </string-array>
-    <string-array name="minutes">
-        <item>5</item>
-        <item>15</item>
-        <item>30</item>
-        <item>45</item>
-    </string-array>
-    <string-array name="days">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-    </string-array>
+    <string name="title_empty_error">Title is required!</string>
+    <string name="description_empty_error">Description is required!</string>
+    <string name="time_empty_error">Frequency is required!</string>
+    <string name="time_lesserThan_1">Frequency cannot be lesser than 0!</string>
+    <string name="delete_dialog_title">Delete confirmation</string>
+    <string name="delete_dialog_message">Are you sure you want to delete the selected item?</string>
+    <string name="dialog_positive_button">Yes</string>
+    <string name="dialog_negative_button">No</string>
+    <string name="label_rowCreatedAt">Created at: </string>
+    <string name="label_rowFrequency">Frequency: every</string>
+
+
     <string-array name="frequency">
         <item>days</item>
         <item>hours</item>

@@ -7,14 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by marius on 24.12.2016.
@@ -39,8 +36,8 @@ public class EventListAdapter extends ArrayAdapter<Event> {
             LinearLayout eventClick = (LinearLayout) v.findViewById(R.id.rowEventClick);
             TextView eventTitle = (TextView) v.findViewById(R.id.rowEventTitle);
             TextView eventDescription = (TextView) v.findViewById(R.id.rowEventDescription);
+            TextView eventFrequency = (TextView) v.findViewById(R.id.rowFrequency);
             TextView eventId = (TextView) v.findViewById(R.id.rowEventId);
-            ToggleButton eventToggle = (ToggleButton) v.findViewById(R.id.rowEventToggle);
 
             if(eventTitle != null){
                 eventTitle.setText(currentEvent.getTitle());
@@ -51,32 +48,9 @@ public class EventListAdapter extends ArrayAdapter<Event> {
             if(eventId != null){
                 eventId.setText(currentEvent.getId() + "");
             }
-            if(eventToggle != null){
-                if(currentEvent.getActive().equals("1")){
-                    eventToggle.setText(R.string.toggle_on);
-                    eventToggle.setChecked(true);
-                }else if(currentEvent.getActive().equals("0")){
-                    eventToggle.setText(R.string.toggle_off);
-                    eventToggle.setChecked(false);
-                }
+            if(eventFrequency != null){
+                eventFrequency.setText(getContext().getResources().getString(R.string.label_rowFrequency) + " " + currentEvent.getFrequency() + " " + currentEvent.getFrequencyType());
             }
-
-            eventToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    DBHelper db = new DBHelper(getContext());
-                    if(isChecked){
-                        Toast.makeText(getContext(),
-                                "You will now receive notifications for this event.", Toast.LENGTH_SHORT).show();
-                        db.setActiveEvent(currentEvent.getId(), "1");
-                    }else{
-                        Toast.makeText(getContext(),
-                                "You will not receive notifications anymore for this event.", Toast.LENGTH_SHORT).show();
-                        db.setActiveEvent(currentEvent.getId(), "0");
-                    }
-                }
-            });
-
             eventClick.setOnClickListener(new View.OnClickListener(){
 
                 @Override

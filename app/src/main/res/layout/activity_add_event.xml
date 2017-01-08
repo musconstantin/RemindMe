@@ -50,12 +50,12 @@
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:text="@string/label_eventRemindMe"/>
-        <Spinner
-            android:id="@+id/timeSpinner"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/timeText"
+            android:layout_width="40sp"
             android:layout_height="wrap_content"
-            android:spinnerMode="dropdown">
-        </Spinner>
+            android:inputType="number">
+        </EditText>
         <Spinner
             android:id="@+id/frequencySpinner"
             android:layout_width="wrap_content"

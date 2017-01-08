@@ -1,7 +1,12 @@
 package com.example.marius.remindme;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -19,57 +24,37 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class EventAdd extends AppCompatActivity {
-
+    AlarmManager am;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
 
-        final String[] hourArray = this.getResources().getStringArray(R.array.hours);
-        final String[] minuteArray = this.getResources().getStringArray(R.array.minutes);
-        final String[] dayArray = this.getResources().getStringArray(R.array.days);
         final String[] frequencyArray = this.getResources().getStringArray(R.array.frequency);
 
-        final Spinner timeSpinner = (Spinner) findViewById(R.id.timeSpinner);
         Spinner frequencySpinner = (Spinner) findViewById(R.id.frequencySpinner);
         EditText title = (EditText) findViewById(R.id.eventTitle);
         EditText description = (EditText) findViewById(R.id.eventDescription);
+        EditText time = (EditText) findViewById(R.id.timeText);
 
-        Toolbar toolbar = (Toolbar)findViewById(R.id.addEventToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         Intent eventList = getIntent();
 
-        addItemsToSpinner(frequencySpinner, frequencyArray);
-        frequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        addItemsToSpinner(timeSpinner, dayArray);
-                        break;
-                    case 1:
-                        addItemsToSpinner(timeSpinner, hourArray);
-                        break;
-                    case 2:
-                        addItemsToSpinner(timeSpinner, minuteArray);
-                        break;
+        if(eventList.getExtras() != null) {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.addEventToolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
                 }
-            }
+            });
+        }
+        addItemsToSpinner(frequencySpinner, frequencyArray);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                timeSpinner.setAdapter(null);
-            }
-        });
         if (eventList.getExtras() == null) {
             frequencySpinner.setSelection(2);
         } else {
@@ -86,20 +71,9 @@ public class EventAdd extends AppCompatActivity {
 
             title.setText(currentRowTitle);
             description.setText(currentRowDescription);
+            time.setText(currentRowFrequency);
             frequencySpinner.setSelection(EventGenerics.getFrequencyIndex(currentRowFrequencyType));
-            switch (currentRowFrequencyType){
-                case "days":
-                    timeSpinner.setSelection(EventGenerics.getDaysIndex(currentRowFrequency));
-                    break;
-                case "hours":
-                    timeSpinner.setSelection(EventGenerics.getHoursIndex(currentRowFrequency));
-                    break;
-                case "minutes":
-                    timeSpinner.setSelection(EventGenerics.getMinutesIndex(currentRowFrequency));
-                    break;
-                default:
-                    break;
-            }
+
         }
     }
 
@@ -111,12 +85,28 @@ public class EventAdd extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.delete_event:
-                DBHelper db = new DBHelper(EventAdd.this);
-                db.deleteEvent(getIntent().getExtras().getInt("currentEventId"));
-                Intent eventsList = new Intent(EventAdd.this, EventList.class);
-                startActivity(eventsList);
+                new AlertDialog.Builder(this)
+                        .setTitle(this.getResources().getString(R.string.delete_dialog_title))
+                        .setMessage(this.getResources().getString(R.string.delete_dialog_message))
+                        .setPositiveButton(this.getResources().getString(R.string.dialog_positive_button), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                DBHelper db = new DBHelper(EventAdd.this);
+                                db.deleteEvent(getIntent().getExtras().getInt("currentEventId"));
+                                cancelAlarm(getIntent().getExtras().getInt("currentEventId"));
+                                Intent eventsList = new Intent(EventAdd.this, EventList.class);
+                                startActivity(eventsList);
+                            }
+                        })
+                        .setNegativeButton(this.getResources().getString(R.string.dialog_negative_button), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -127,35 +117,60 @@ public class EventAdd extends AppCompatActivity {
         EditText title = (EditText) findViewById(R.id.eventTitle);
         EditText description = (EditText) findViewById(R.id.eventDescription);
         Spinner frequencyType = (Spinner) findViewById(R.id.frequencySpinner);
-        Spinner frequency = (Spinner) findViewById(R.id.timeSpinner);
+        EditText time = (EditText) findViewById(R.id.timeText);
         String currentTime = EventGenerics.dateFormat.format(Calendar.getInstance().getTime());
 
         DBHelper dbHelper = new DBHelper(this);
-        if(getIntent().getExtras() == null) {
-            dbHelper.insertEvent(title.getText().toString(),
-                    description.getText().toString(),
-                    frequency.getSelectedItem().toString(),
-                    frequencyType.getSelectedItem().toString(),
-                    EventGenerics.activeDefault,
-                    currentTime,
-                    EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), frequency.getSelectedItem().toString()));
-        }else{
-            dbHelper.updateEvent(getIntent().getExtras().getInt("currentEventId"),
-                    title.getText().toString(),
-                    description.getText().toString(),
-                    frequency.getSelectedItem().toString(),
-                    frequencyType.getSelectedItem().toString(),
-                    EventGenerics.activeDefault,
-                    currentTime,
-                    EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), frequency.getSelectedItem().toString()));
+        if (title.getText().toString().length() == 0) {
+            title.setError(this.getResources().getString(R.string.title_empty_error));
+        } else if (description.getText().toString().length() == 0) {
+            description.setError(this.getResources().getString(R.string.description_empty_error));
+        } else if (time.getText().toString().length() == 0) {
+            time.setError(this.getResources().getString(R.string.time_empty_error));
+        } else if (Integer.parseInt(time.getText().toString()) < 1) {
+            time.setError(this.getResources().getString(R.string.time_lesserThan_1));
+        } else {
+            if (getIntent().getExtras() == null) {
+                long eventId = dbHelper.insertEvent(title.getText().toString(),
+                        description.getText().toString(),
+                        time.getText().toString(),
+                        frequencyType.getSelectedItem().toString(),
+                        currentTime,
+                        EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), time.getText().toString()));
+                setAlarm(frequencyType.getSelectedItemPosition(), time.getText().toString(), (int)eventId);
+            }else{
+                dbHelper.updateEvent(getIntent().getExtras().getInt("currentEventId"),
+                        title.getText().toString(),
+                        description.getText().toString(),
+                        time.getText().toString(),
+                        frequencyType.getSelectedItem().toString(),
+                        currentTime,
+                        EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), time.getText().toString()));
+            }
+            Intent eventList = new Intent(EventAdd.this, EventList.class);
+            EventAdd.this.startActivity(eventList);
         }
-        Intent eventList = new Intent(EventAdd.this, EventList.class);
-        EventAdd.this.startActivity(eventList);
     }
 
     public void addItemsToSpinner(Spinner spinner, String[] entries) {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_dropdown_item, entries);
         spinner.setAdapter(arrayAdapter);
+    }
+
+    public void setAlarm(int frequencyType, String frequency, int eventId){
+        Intent notificationReceiver = new Intent(this, NotificationReceiver.class);
+        notificationReceiver.putExtra("id", eventId);
+        PendingIntent pendingNotificationReceiver = PendingIntent.getBroadcast(this, eventId, notificationReceiver, PendingIntent.FLAG_CANCEL_CURRENT);
+        am.setRepeating(AlarmManager.RTC_WAKEUP,
+                EventGenerics.getNextAlertTime(frequencyType, frequency),
+                EventGenerics.getFrequencyInMillis(frequencyType, frequency),
+                pendingNotificationReceiver);
+    }
+    public void cancelAlarm(int eventId){
+        Intent notificationReceiver = new Intent(this, NotificationReceiver.class);
+        PendingIntent pendingNotificationReceiver = PendingIntent.getBroadcast(this, eventId, notificationReceiver, PendingIntent.FLAG_CANCEL_CURRENT);
+        am.cancel(pendingNotificationReceiver);
+        pendingNotificationReceiver.cancel();
     }
 }
