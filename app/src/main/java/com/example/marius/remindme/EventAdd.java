@@ -41,18 +41,16 @@ public class EventAdd extends AppCompatActivity {
 
         Intent eventList = getIntent();
 
-        if(eventList.getExtras() != null) {
-            Toolbar toolbar = (Toolbar) findViewById(R.id.addEventToolbar);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            });
-        }
+        Toolbar toolbar = (Toolbar) findViewById(R.id.addEventToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         addItemsToSpinner(frequencySpinner, frequencyArray);
 
         if (eventList.getExtras() == null) {
@@ -79,7 +77,9 @@ public class EventAdd extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_items, menu);
+        if (getIntent().getExtras() != null) {
+            getMenuInflater().inflate(R.menu.toolbar_items, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -146,6 +146,8 @@ public class EventAdd extends AppCompatActivity {
                         frequencyType.getSelectedItem().toString(),
                         currentTime,
                         EventGenerics.calculateNextTimeAlert(frequencyType.getSelectedItemPosition(), time.getText().toString()));
+                cancelAlarm(getIntent().getExtras().getInt("currentEventId"));
+                setAlarm(frequencyType.getSelectedItemPosition(), time.getText().toString(), getIntent().getExtras().getInt("currentEventId"));
             }
             Intent eventList = new Intent(EventAdd.this, EventList.class);
             EventAdd.this.startActivity(eventList);
